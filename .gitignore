@@ -1,0 +1,7 @@
+node_modules/
+vanilla/auth.json
+vanilla/sessions/
+vanilla/*.bak*
+sandbox/hello.txt
+*.log
+.DS_Store

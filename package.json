@@ -1,0 +1,12 @@
+{
+  "name": "pi-jev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit --strict --skipLibCheck --module nodenext --target es2022 --moduleResolution nodenext jev-advisor.ts"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.85.1",
+    "typescript": "^5.9.2"
+  }
+}

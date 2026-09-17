@@ -1,0 +1,15 @@
+{
+  "on_track": {
+    "type": "score",
+    "instructions": "GOAL section states the run's goal and requirements. RECENT TURNS lists the latest tool calls and their outcomes. 9-10 when the recent turns directly advance a named requirement with fresh progress. 7-8 when plausibly preparatory. 5-6 when the connection to any requirement is thin. 3-4 when turns pursue something outside the goal scope. 1-2 when the agent spins with no progress (repeats, errors, thrash). Score only what the turns show; missing context is no-evidence, not guilt.",
+    "criteria": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+  },
+  "drifting": {
+    "type": "boolean",
+    "instructions": "True when RECENT TURNS pursue work outside the GOAL scope (wrong task, rabbit hole, scope creep). False when turns serve the goal or are harmless setup. Base this only on the turns shown."
+  },
+  "looping": {
+    "type": "boolean",
+    "instructions": "True when RECENT TURNS repeat equivalent actions without new information or progress (same call retried, same error, cycling between the same steps). False when each turn adds information or advances state."
+  }
+}

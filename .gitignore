@@ -5,3 +5,4 @@ vanilla/*.bak*
 sandbox/hello.txt
 *.log
 .DS_Store
+vanilla/models-store.json

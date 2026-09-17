@@ -1,7 +1,9 @@
-// jev-advisor: Jev watches the run — loop detection + goal alignment.
+// jev-advisor: Jev watches the run — loop detection, goal alignment,
+// prompt/goal conflict, and a shadow auditor for risky tool calls.
 // Advisory-first: notify + steer message on fire. Blocking only when
 // JEV_ADVISOR_ENFORCE=1. Fails open on every error path.
 import type {
+  BeforeAgentStartEvent,
   ExtensionAPI,
   ExtensionContext,
   ToolCallEvent,
@@ -9,12 +11,26 @@ import type {
   ToolExecutionStartEvent,
   TurnEndEvent,
 } from "@earendil-works/pi-coding-agent";
+import { isToolCallEventType } from "@earendil-works/pi-coding-agent";
 import { execFile } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+
+// Shadow auditor: high-signal destructive/escape patterns. Notify + log only.
+const BASH_PATTERNS: RegExp[] = [
+  /\brm\s+(-[a-z]*r[a-z]*f|-[a-z]*f[a-z]*r)\b/,
+  /:\(\)\s*\{/,
+  /\bmkfs\b/,
+  /\bdd\b.*\bof=/,
+  /git\s+push\b.*--force/,
+  /git\s+reset\s+--hard/,
+  /chmod\s+-R\s+777/,
+  /curl\b.*\|\s*(sh|bash)/,
+];
+const SENSITIVE_PATH = /(\.env$|\.pem$|key|secret|credential)/i;
 
 interface AdvisorConfig {
   every: number;
@@ -43,6 +59,8 @@ interface JevAnswers {
   on_track?: JevScore;
   drifting?: JevBool;
   looping?: JevBool;
+  goal_conflict?: JevBool;
+  unsafe_action?: JevBool;
 }
 
 function num(raw: string | undefined, fallback: number): number {
@@ -93,12 +111,34 @@ function boolProb(answer: JevBool | undefined): number {
   return answer.probability ?? answer.noul ?? 0;
 }
 
-function buildState(goal: string, records: TurnRecord[]): string {
+function buildState(goal: string, prompt: string, records: TurnRecord[], flags: string[]): string {
   const turns = records
     .slice(-8)
     .map((r, i) => `${i + 1}. ${r.sig}${r.error ? " [ERROR]" : ""}`)
     .join("\n");
-  return `GOAL\n${goal}\n\nRECENT TURNS\n${turns}`;
+  const audit = flags.length > 0 ? flags.slice(-5).join("\n") : "none";
+  return `GOAL\n${goal}\n\nPROMPT\n${prompt}\n\nRECENT TURNS\n${turns}\n\nAUDIT FLAGS\n${audit}`;
+}
+
+function bashFlag(command: string): string | null {
+  for (const pattern of BASH_PATTERNS) {
+    if (pattern.test(command)) return `bash matches ${pattern.source}`;
+  }
+  return null;
+}
+
+function pathFlag(path: string): string | null {
+  if (SENSITIVE_PATH.test(path)) return `sensitive path: ${path}`;
+  if (!resolve(path).startsWith(process.cwd() + sep)) return `outside cwd: ${path}`;
+  return null;
+}
+
+function tripwireFlag(event: ToolCallEvent): string | null {
+  if (isToolCallEventType("bash", event)) return bashFlag(event.input.command);
+  if (isToolCallEventType("powershell", event)) return bashFlag(event.input.command);
+  if (isToolCallEventType("write", event)) return pathFlag(event.input.path);
+  if (isToolCallEventType("edit", event)) return pathFlag(event.input.path);
+  return null;
 }
 
 function callJev(state: string, timeoutMs: number): Promise<JevAnswers> {
@@ -123,7 +163,9 @@ export default function (pi: ExtensionAPI): void {
   const config = loadConfig();
   const records: TurnRecord[] = [];
   const openCalls = new Map<string, number>();
+  const auditFlags: string[] = [];
   let goal = "";
+  let lastPrompt = "";
   let judgmentsUsed = 0;
   let loopStreak = 0;
   let lastVerdict = "none yet";
@@ -140,12 +182,13 @@ export default function (pi: ExtensionAPI): void {
     ctx.ui.notify(`jev-advisor: ${message}`, "error");
   }
 
-  function fire(ctx: ExtensionContext, source: string, detail: string, turnIndex: number): void {
+  function fire(ctx: ExtensionContext, source: string, detail: string, turnIndex: number, steer: boolean): void {
     lastVerdict = `${source}: ${detail}`;
     pi.appendEntry("jev-advisor", { source, detail, turns: records.length });
     if (turnIndex - lastFireTurn < STEER_COOLDOWN_TURNS) return;
     lastFireTurn = turnIndex;
     ctx.ui.notify(`jev-advisor [${source}] ${detail}`, "warning");
+    if (!steer) return;
     pi.sendMessage(
       {
         customType: "jev-advisor",
@@ -189,9 +232,18 @@ export default function (pi: ExtensionAPI): void {
     return "ok";
   }
 
+  function handleSafety(ctx: ExtensionContext, unsafe: number, conflict: number, turnIndex: number): void {
+    if (unsafe >= 0.7) {
+      fire(ctx, "jev-unsafe", `unsafe_action=${unsafe.toFixed(2)}`, turnIndex, true);
+    }
+    if (conflict >= 0.7) {
+      fire(ctx, "jev-conflict", `goal_conflict=${conflict.toFixed(2)}`, turnIndex, false);
+    }
+  }
+
   function handleVerdict(ctx: ExtensionContext, verdict: Verdict, detail: string, turnIndex: number): void {
     if (verdict === "fire") {
-      fire(ctx, "jev", detail, turnIndex);
+      fire(ctx, "jev", detail, turnIndex, true);
     } else if (verdict === "uncertain") {
       noteUncertain(`jev uncertain: ${detail}`);
     } else {
@@ -205,11 +257,12 @@ export default function (pi: ExtensionAPI): void {
     if (!stateMoved()) return;
     judgmentsUsed += 1;
     try {
-      const answers = await callJev(buildState(goal, records), config.timeoutMs);
+      const answers = await callJev(buildState(goal, lastPrompt, records, auditFlags), config.timeoutMs);
       const score = answers.on_track?.score ?? 10;
       const drift = boolProb(answers.drifting);
       const loop = boolProb(answers.looping);
       if (loop >= 0.7) loopStreak += 1;
+      handleSafety(ctx, boolProb(answers.unsafe_action), boolProb(answers.goal_conflict), turnIndex);
       const detail = `on_track=${score}/10 drift=${drift.toFixed(2)} loop=${loop.toFixed(2)}`;
       handleVerdict(ctx, verdictOf(score, drift, loop), detail, turnIndex);
     } catch (error) {
@@ -222,7 +275,7 @@ export default function (pi: ExtensionAPI): void {
       goal = readFileSync(config.goalPath, "utf8").slice(0, 4000);
     }
     ctx.ui.notify(
-      `jev-advisor on (every ${config.every}, budget ${config.budget}, goal ${goal ? "loaded" : "MISSING — loop watch only"})`,
+      `jev-advisor on (every ${config.every}, budget ${config.budget}, goal ${goal ? "loaded" : "MISSING — loop watch only"}, auditor shadow)`,
       "info",
     );
   });
@@ -242,7 +295,7 @@ export default function (pi: ExtensionAPI): void {
       if (records.length === 0) return;
       if (codeLoop(records)) {
         loopStreak += 1;
-        fire(ctx, "code", `repeat/error loop (streak ${loopStreak})`, event.turnIndex);
+        fire(ctx, "code", `repeat/error loop (streak ${loopStreak})`, event.turnIndex, true);
         return;
       }
       if (event.turnIndex % config.every === 0) {
@@ -253,11 +306,29 @@ export default function (pi: ExtensionAPI): void {
     }
   });
 
-  pi.on("tool_call", async (event: ToolCallEvent) => {
-    if (!config.enforce || loopStreak < 2 || records.length === 0) return;
+  function shadowAudit(event: ToolCallEvent, ctx: ExtensionContext): void {
+    const flag = tripwireFlag(event);
+    if (!flag) return;
+    auditFlags.push(flag);
+    ctx.ui.notify(`jev-advisor [shadow] would flag: ${flag}`, "warning");
+    pi.appendEntry("jev-audit-shadow", { flag });
+  }
+
+  function enforceVerdict(event: ToolCallEvent): { block: true; reason: string } | undefined {
+    if (!config.enforce || loopStreak < 2 || records.length === 0) return undefined;
     if (toolSig(event.toolName, safeJson(event.input)) === records[records.length - 1].sig) {
       return { block: true, reason: "jev-advisor: same call repeated on a loop streak — do something different" };
     }
+    return undefined;
+  }
+
+  pi.on("before_agent_start", (event: BeforeAgentStartEvent) => {
+    lastPrompt = event.prompt.slice(0, 1000);
+  });
+
+  pi.on("tool_call", async (event: ToolCallEvent, ctx) => {
+    shadowAudit(event, ctx);
+    return enforceVerdict(event);
   });
 
   pi.registerCommand("advisor", {

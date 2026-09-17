@@ -1,0 +1,17 @@
+#!/bin/sh
+# pi-jev: vanilla pi + Jev advisor. Runs in the current directory.
+SELF="$0"
+if [ -L "$SELF" ]; then
+  LINK="$(readlink "$SELF")"
+  case "$LINK" in
+    /*) SELF="$LINK" ;;
+    *) SELF="$(dirname "$SELF")/$LINK" ;;
+  esac
+fi
+ADVISOR_HOME="$(cd "$(dirname "$SELF")/.." && pwd)"
+export PI_CODING_AGENT_DIR="${PI_CODING_AGENT_DIR:-$ADVISOR_HOME/vanilla}"
+export JEV_ADVISOR_EVERY="${JEV_ADVISOR_EVERY:-3}"
+if [ ! -f "$PI_CODING_AGENT_DIR/auth.json" ]; then
+  echo "pi-jev: no auth.json in $PI_CODING_AGENT_DIR (copy ~/.pi/agent/auth.json there, or /login inside pi)." >&2
+fi
+exec pi -e "$ADVISOR_HOME/jev-advisor.ts" "$@"

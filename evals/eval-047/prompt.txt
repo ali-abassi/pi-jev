@@ -1,0 +1,2 @@
+Implement the markdown table parser per the docstring in src/mdtable.py.
+Tests define the contract, including pipes-optional rows.

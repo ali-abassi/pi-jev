@@ -1,0 +1,2 @@
+Implement the v1-to-v2 config migration per the stub in src/migrate.js,
+including port validation. Tests define the contract.

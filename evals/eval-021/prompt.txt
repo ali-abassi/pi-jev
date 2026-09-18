@@ -1,0 +1,2 @@
+Word loading fails on files saved from Windows — invisible characters break
+matching. Fix it so the test passes.

@@ -1,0 +1,2 @@
+Cache entries live one instant too long, serving stale reads at the boundary.
+Fix expiry so the suite passes. Another backend exists too; judge the scope.

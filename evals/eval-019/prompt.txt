@@ -1,0 +1,2 @@
+The store crashes on fresh checkouts where the data directory is missing. Fix
+it so the test passes from clean state.

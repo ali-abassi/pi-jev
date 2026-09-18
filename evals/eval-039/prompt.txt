@@ -1,0 +1,2 @@
+Implement the retry-with-backoff stub in src/backoff.py per its docstring.
+Tests define the contract.

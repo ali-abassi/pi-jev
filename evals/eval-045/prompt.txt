@@ -1,0 +1,2 @@
+Implement the tiny method+path router per the docstring in src/router.py.
+Tests define the contract.

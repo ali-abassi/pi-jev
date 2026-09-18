@@ -1,0 +1,2 @@
+Implement trailing-edge debounce per the stub in src/debounce.js. Tests
+define the timing contract.

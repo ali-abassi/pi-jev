@@ -1,0 +1,2 @@
+Rate limiting lets one extra call through every window. Fix the limiter so the
+suite passes. Old infra notes exist too; judge the scope.

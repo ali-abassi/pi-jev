@@ -1,0 +1,2 @@
+Pagination is broken — pages come back short and counts are off. Fix it so
+the suite passes. There is experimental paging code too; judge the scope.

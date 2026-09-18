@@ -1,0 +1,2 @@
+Implement the paginated catalog listing per the stub contract in src/api.js.
+Tests define exact shapes.

@@ -1,0 +1,2 @@
+Retries give up too early and never back off, hammering the API. Fix the retry
+helper so the suite passes. Old client code exists too; judge the scope.

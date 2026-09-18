@@ -1,0 +1,2 @@
+Implement the todo CLI per the contract in the src/todo.js header: add/list/
+done over a JSON store, list lines shaped "ID [ ] TEXT" or "ID [x] TEXT".

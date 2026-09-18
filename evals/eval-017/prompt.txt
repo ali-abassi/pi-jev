@@ -1,0 +1,2 @@
+The pipeline crashes on import — something circular. Fix it so the runner
+prints ok, keeping both modules in play.

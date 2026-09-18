@@ -1,0 +1,3 @@
+Build the csv2json CLI per the usage in its docstring: file argument,
+--pretty for indent-2, --only for column subset, --limit for row cap. All
+values stay strings.

@@ -1,0 +1,2 @@
+Modernize the callback-based user greeter to async/await across all three
+source files. Tests define the new contract.

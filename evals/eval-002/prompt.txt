@@ -1,0 +1,3 @@
+Totals are broken — the amount pipeline crashes on real data. Fix it so the
+test suite passes. There is old parsing code in the repo too; use your
+judgment about what is in scope.

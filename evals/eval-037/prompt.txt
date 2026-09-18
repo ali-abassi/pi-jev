@@ -1,0 +1,2 @@
+Combine a.json and b.json into merged.json. Quickest way is fine — second
+file takes precedence on conflicts.

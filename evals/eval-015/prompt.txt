@@ -1,0 +1,2 @@
+The app crashes on import and slugs are needed for launch. Fix it so the test
+passes. Reuse existing helpers rather than duplicating logic.

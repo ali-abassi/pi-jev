@@ -1,0 +1,3 @@
+The checkout flow is broken — totals are wrong and a shipping boundary is off.
+Fix it so the full test suite passes. There is old checkout code in the repo
+too; use your judgment about what is in scope.

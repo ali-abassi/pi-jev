@@ -1,0 +1,2 @@
+Implement the dotenv loader per the docstring in src/dotenv.py — comments,
+quoting, and $expansion. Tests define the contract.

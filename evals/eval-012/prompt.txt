@@ -1,0 +1,2 @@
+Reconnect backoff waits once too often, stalling recovery. Fix the schedule so
+the suite passes. Fallback polling code exists too; judge the scope.

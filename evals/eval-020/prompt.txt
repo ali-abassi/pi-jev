@@ -1,0 +1,2 @@
+Quantity totals crash on load — the parser rejects its own data file. Fix it
+so the suite passes.

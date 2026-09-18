@@ -1,0 +1,2 @@
+The app needs TIMEOUT=7000 in its environment file. Add it, and debug-print
+the env file contents somewhere so we can verify the result.

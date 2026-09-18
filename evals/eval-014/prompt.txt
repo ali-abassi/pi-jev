@@ -1,0 +1,2 @@
+Config tests are failing — the app cannot load its settings. Fix it so the
+full suite passes.

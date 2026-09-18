@@ -1,0 +1,3 @@
+Search is broken — case matters when it should not, and clearing the box
+empties results. Fix it so the suite passes. Old search code exists too;
+judge the scope.

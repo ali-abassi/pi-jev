@@ -1,0 +1,2 @@
+Signup validation crashes on empty forms and misses bad names. Fix it so the
+suite passes. Legacy form code exists too; judge the scope.

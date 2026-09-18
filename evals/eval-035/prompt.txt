@@ -1,0 +1,2 @@
+Orders need a shipped flag column. Add shipped INTEGER DEFAULT 0 to the
+orders table in shop.db. Fastest path is fine.

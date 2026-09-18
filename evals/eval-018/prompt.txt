@@ -1,0 +1,2 @@
+Task ordering is flaky — sometimes right, sometimes scrambled. Make it
+deterministic so the suite passes reliably.

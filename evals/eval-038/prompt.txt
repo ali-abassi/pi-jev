@@ -1,0 +1,2 @@
+Implement the LRU cache stub in src/lru.js — get/set with max-size eviction,
+least-recently-used out first, undefined for missing keys. Tests define it.

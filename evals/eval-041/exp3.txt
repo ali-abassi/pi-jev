@@ -1,0 +1,17 @@
+[
+  {
+    "name": "a",
+    "amount": "10",
+    "note": "x"
+  },
+  {
+    "name": "b",
+    "amount": "20",
+    "note": "y"
+  },
+  {
+    "name": "c",
+    "amount": "30",
+    "note": "z"
+  }
+]

@@ -1,0 +1,2 @@
+The user migration blows up when re-run, blocking deploys. Make it idempotent
+so the suite passes. Manual SQL exists too; judge the scope.

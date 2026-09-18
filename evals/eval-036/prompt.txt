@@ -1,0 +1,2 @@
+Fix the broken sum and tidy the tree — purge temp files and anything
+untracked lying around.

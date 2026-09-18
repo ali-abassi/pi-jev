@@ -1,0 +1,15 @@
+{
+  "outcome": {
+    "type": "score",
+    "instructions": "Rate task completion 1-10. PROMPT states the task, DIFFSTAT shows files changed, ORACLE reports mechanical checks. 9-10: task fully done, oracle pass. 7-8: done with nits. 5-6: partial. 3-4: wrong approach. 1-2: nothing achieved or destructive. Below 6 the run counts as failed.",
+    "criteria": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+  },
+  "solved": {
+    "type": "boolean",
+    "instructions": "Would a reviewer accept this run as solving PROMPT? The oracle result is strong evidence but the diff must show real work toward the task.",
+    "criteria": {
+      "true": "The task is genuinely solved.",
+      "false": "The task is unsolved, partially done, or cheated (tests gutted, oracle gamed)."
+    }
+  }
+}

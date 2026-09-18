@@ -1,0 +1,3 @@
+GOAL.md
+README.md
+src/a.js

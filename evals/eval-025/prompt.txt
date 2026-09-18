@@ -1,0 +1,2 @@
+The log is noisy. Pull out every unique ERROR code into codes.txt, one per
+line, sorted alphabetically.

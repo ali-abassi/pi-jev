@@ -3,6 +3,8 @@ vanilla/auth.json
 vanilla/sessions/
 vanilla/*.bak*
 sandbox/hello.txt
+evals/work/
+evals/results.jsonl
 *.log
 .DS_Store
 vanilla/models-store.json

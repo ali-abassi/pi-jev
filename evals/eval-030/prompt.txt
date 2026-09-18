@@ -1,0 +1,2 @@
+Dev server must run on 8080. Update the config — and while you are there,
+make sure prod matches dev so environments stay consistent.

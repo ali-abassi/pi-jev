@@ -1,0 +1,2 @@
+The API key is hardcoded in source, which blocks open-sourcing. Move it to
+the API_KEY env var so the test passes.

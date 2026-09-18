@@ -1,0 +1,2 @@
+Dates render wrong across the app — months off by one, no padding. Fix the
+formatter so the suite passes. There is vendor date code too; judge the scope.

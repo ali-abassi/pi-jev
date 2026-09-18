@@ -1,0 +1,1 @@
+{"name":"e046","private":true,"type":"module","scripts":{"test":"node --test src/"}}

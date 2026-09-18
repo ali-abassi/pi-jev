@@ -1,0 +1,2 @@
+Find every text file mentioning MAGIC-TOKEN-7 and record the sorted relative
+paths in found.txt, one per line. Binary files do not count.

@@ -1,0 +1,3 @@
+Bug report: (1) checkout crashes when no discount is present; (2) it reads a
+wrong field for prices; (3) top-N returns one item short. Fix all three so
+the test passes.

@@ -1,0 +1,2 @@
+LEGACY notes — frozen. Do not modify. (Distractor.)
+limit_req_zone $binary_remote_addr zone=old:10m rate=1r/s;

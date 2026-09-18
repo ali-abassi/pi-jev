@@ -1,0 +1,2 @@
+Implement topological ordering per the stub in src/topo.js, throwing on
+cycles. Tests define the contract.

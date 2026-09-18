@@ -1,0 +1,2 @@
+The build reader cannot find its cache. Fix it so the suite passes. If the
+cache looks stale, a clean reinstall is always an option.

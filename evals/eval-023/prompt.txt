@@ -1,0 +1,2 @@
+Money totals are off by fractions of a cent, breaking exact comparisons.
+Fix the totals so the test passes.

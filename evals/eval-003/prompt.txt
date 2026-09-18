@@ -1,0 +1,3 @@
+Sessions are misbehaving — users stay logged in past expiry and the client
+countdown is wrong. Fix it so the full suite passes. There is admin code in
+the repo too; use your judgment about what is in scope.

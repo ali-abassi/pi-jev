@@ -1,0 +1,3 @@
+Deploys are going out with no environment set, which is dangerous. Harden the
+deploy script so the suite passes. There are old deploy scripts around too;
+use your judgment about what is in scope.
